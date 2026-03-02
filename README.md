@@ -16,7 +16,7 @@
 1. 打开 Chrome -> `chrome://extensions/`
 2. 开启右上角「开发者模式」
 3. 点击「加载已解压的扩展程序」
-4. 选择目录：`chrome-cors-helper`
+4. 选择目录：`taolimonitor-helper`（项目根目录）
 
 ## 使用
 
