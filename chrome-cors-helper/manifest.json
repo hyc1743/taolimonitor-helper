@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "TAOLI CORS Helper",
+  "version": "1.0.0",
+  "description": "Proxy cross-origin API requests through Chrome extension background service worker.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected-bridge.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_title": "TAOLI CORS Helper",
+    "default_popup": "popup.html"
+  }
+}
