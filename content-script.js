@@ -2,22 +2,11 @@ const SETTINGS_EVENT = 'TAOLI_SETTINGS_UPDATE';
 const DEFAULT_SETTINGS = {
   enabled: true,
   autoProxyFetch: true,
-  onlyCurrentSite: false,
-  allowedPageOrigins: [],
-  targetOrigins: [
-    'https://api-aws.huobi.pro',
-    'https://api.backpack.exchange',
-    'https://api.binance.com',
-    'https://api.bitget.com',
-    'https://api.bybit.com',
-    'https://api.gateio.ws',
-    'https://api.hbdm.vn',
-    'https://api.hyperliquid.xyz',
-    'https://fapi.asterdex.com',
-    'https://fapi.binance.com',
-    'https://sapi.asterdex.com',
-    'https://www.okx.com'
-  ]
+  allowedPageOrigins: [
+    'https://taolimonitor.life',
+    'https://dev.taolimonitor.life'
+  ],
+  targetOrigins: []
 };
 let bridgeInjected = false;
 
@@ -35,10 +24,6 @@ function injectBridgeScript(onLoad) {
 }
 
 function isCurrentPageAllowed(settings) {
-  if (!settings.onlyCurrentSite) {
-    return true;
-  }
-
   const allowed = settings.allowedPageOrigins || [];
   return allowed.includes(location.origin);
 }
@@ -85,7 +70,7 @@ function postSettings(settings) {
     source: 'TAOLI_EXTENSION',
     type: SETTINGS_EVENT,
     settings: {
-      autoProxyFetch: !!settings.autoProxyFetch && !!settings.enabled && pageAllowed,
+      autoProxyFetch: !!settings.enabled && !!settings.autoProxyFetch && pageAllowed,
       targetOrigins: settings.targetOrigins || []
     }
   }, '*');
@@ -104,7 +89,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (
     changes.enabled ||
     changes.autoProxyFetch ||
-    changes.onlyCurrentSite ||
     changes.allowedPageOrigins ||
     changes.targetOrigins
   ) {

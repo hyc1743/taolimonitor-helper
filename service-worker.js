@@ -33,7 +33,9 @@ chrome.runtime.onInstalled.addListener(async () => {
   const current = await chrome.storage.local.get(DEFAULT_SETTINGS);
   await chrome.storage.local.set({
     ...DEFAULT_SETTINGS,
-    ...current
+    ...current,
+    autoProxyFetch: true,
+    allowedPageOrigins: DEFAULT_SETTINGS.allowedPageOrigins
   });
 });
 
@@ -44,7 +46,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   (async () => {
     const settings = await getSettings();
-    const { enabled, targetOrigins, onlyCurrentSite, allowedPageOrigins } = settings;
+    const { enabled, targetOrigins, allowedPageOrigins } = settings;
 
     if (!enabled) {
       sendResponse({ ok: false, error: 'CORS helper is disabled in extension settings.' });
@@ -52,7 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     const senderOrigin = getSenderOrigin(sender);
-    if (onlyCurrentSite && !(allowedPageOrigins || []).includes(senderOrigin)) {
+    if (!(allowedPageOrigins || []).includes(senderOrigin)) {
       sendResponse({ ok: false, error: `Blocked page origin: ${senderOrigin || 'unknown'}` });
       return;
     }

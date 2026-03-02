@@ -5,11 +5,10 @@
 
 ## 功能
 
-- 自动代理 `fetch`：对配置白名单域名自动走扩展代理
+- 自动代理 `fetch`：默认开启，对配置白名单域名自动走扩展代理
 - 手动代理 API：页面可调用 `window.taoliCors.request(...)`
-- 可视化配置：在扩展 popup 中开关代理、编辑白名单域名
-- 站点范围控制：可开启“仅对当前网站生效”
-- 默认白名单：已根据 `doc/*.js` 里的 API 地址初始化
+- 站点范围限制：仅对 `https://taolimonitor.life` 和 `https://dev.taolimonitor.life` 生效
+- API 白名单配置：在 `targets.js` 里维护
 
 ## 安装
 
@@ -45,11 +44,13 @@ console.log(json);
 点击扩展图标后可设置：
 
 - `启用扩展代理`：总开关
-- `自动代理 fetch 请求`：是否重写页面 `window.fetch`
-- `仅对当前网站生效`：开启后只允许当前 tab 的网站使用代理能力
-- `允许代理的 API 域名`：每行一个 `origin`
 
 保存后会自动刷新当前页。
+
+程序配置在 `targets.js`：
+
+- `ALLOWED_PAGE_ORIGINS`：允许启用代理的网站来源
+- `TARGET_ORIGINS`：允许代理请求的 API 来源
 
 ## 注意事项
 

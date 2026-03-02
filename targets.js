@@ -13,10 +13,14 @@ export const TARGET_ORIGINS = [
   "https://www.okx.com"
 ];
 
+export const ALLOWED_PAGE_ORIGINS = [
+  "https://taolimonitor.life",
+  "https://dev.taolimonitor.life"
+];
+
 export const DEFAULT_SETTINGS = {
   enabled: true,
   autoProxyFetch: true,
   targetOrigins: TARGET_ORIGINS,
-  onlyCurrentSite: false,
-  allowedPageOrigins: []
+  allowedPageOrigins: ALLOWED_PAGE_ORIGINS
 };
