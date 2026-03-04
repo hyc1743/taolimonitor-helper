@@ -12,34 +12,13 @@
 // @connect      api.gateio.ws
 // ==/UserScript==
 
-type GMRequestConfig = {
-  method: string;
-  url: string;
-  headers?: Record<string, string>;
-  data?: string | null;
-  timeout?: number;
-  responseType?: 'text' | 'json' | 'blob' | 'arraybuffer' | 'document';
-  anonymous?: boolean;
-  onload?: (response: GMResponse) => void;
-  onerror?: (error: unknown) => void;
-  ontimeout?: () => void;
-};
+(function () {
+  'use strict';
 
-type GMResponse = {
-  status: number;
-  statusText?: string;
-  responseText?: string;
-  responseHeaders?: string;
-  finalUrl?: string;
-};
+  var REQUEST_TIMEOUT_MS = 15000;
 
-declare function GM_xmlhttpRequest(config: GMRequestConfig): void;
-
-(() => {
-  const REQUEST_TIMEOUT_MS = 15_000;
-
-  function createPanel(): void {
-    const panel = document.createElement('div');
+  function createPanel() {
+    var panel = document.createElement('div');
     panel.style.cssText = [
       'position:fixed',
       'right:12px',
@@ -56,76 +35,80 @@ declare function GM_xmlhttpRequest(config: GMRequestConfig): void;
       'box-shadow:0 4px 16px rgba(0,0,0,.35)'
     ].join(';');
 
-    const title = document.createElement('div');
+    var title = document.createElement('div');
     title.textContent = 'CORS Min Test';
     title.style.cssText = 'font-weight:700;color:#fff;margin-bottom:8px;';
     panel.appendChild(title);
 
-    const btn = document.createElement('button');
+    var btn = document.createElement('button');
     btn.textContent = 'Run Test';
     btn.style.cssText =
       'padding:6px 10px;border:0;border-radius:6px;background:#1f6feb;color:#fff;cursor:pointer;';
     panel.appendChild(btn);
 
-    const log = document.createElement('pre');
+    var log = document.createElement('pre');
     log.style.cssText = 'white-space:pre-wrap;margin:8px 0 0;color:#9fef9f;';
     panel.appendChild(log);
 
-    function append(line: string): void {
+    function append(line) {
       log.textContent += (log.textContent ? '\n' : '') + line;
       panel.scrollTop = panel.scrollHeight;
     }
 
-    function testOne(name: string, url: string): Promise<boolean> {
-      return new Promise((resolve) => {
-        append(`[${name}] -> ${url}`);
+    function testOne(name, url) {
+      return new Promise(function (resolve) {
+        append('[' + name + '] -> ' + url);
 
         GM_xmlhttpRequest({
           method: 'GET',
-          url,
+          url: url,
           timeout: REQUEST_TIMEOUT_MS,
-          onload: (res) => {
-            const ok = res.status >= 200 && res.status < 300;
-            const preview = (res.responseText || '').slice(0, 120).replace(/\s+/g, ' ');
-            append(`[${name}] status=${res.status} ok=${ok} len=${(res.responseText || '').length}`);
-            append(`[${name}] body=${preview}`);
+          onload: function (res) {
+            var ok = res.status >= 200 && res.status < 300;
+            var preview = (res.responseText || '').slice(0, 120).replace(/\s+/g, ' ');
+            append('[' + name + '] status=' + res.status + ' ok=' + ok + ' len=' + (res.responseText || '').length);
+            append('[' + name + '] body=' + preview);
             resolve(ok);
           },
-          onerror: (err) => {
-            append(`[${name}] ERROR: ${JSON.stringify(err)}`);
+          onerror: function (err) {
+            append('[' + name + '] ERROR: ' + JSON.stringify(err));
             resolve(false);
           },
-          ontimeout: () => {
-            append(`[${name}] TIMEOUT`);
+          ontimeout: function () {
+            append('[' + name + '] TIMEOUT');
             resolve(false);
           }
         });
       });
     }
 
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', function () {
       log.textContent = '';
       append('Start...');
-      append(`GM_xmlhttpRequest exists: ${typeof GM_xmlhttpRequest === 'function'}`);
+      append('GM_xmlhttpRequest exists: ' + (typeof GM_xmlhttpRequest === 'function'));
 
       if (typeof GM_xmlhttpRequest !== 'function') {
         append('FAIL: GM_xmlhttpRequest unavailable (check @grant / @inject-into content)');
         return;
       }
 
-      const r1 = await testOne('bitget', 'https://api.bitget.com/api/v2/spot/market/tickers');
-      const r2 = await testOne('gate', 'https://api.gateio.ws/api/v4/spot/tickers');
-
-      const pass = r1 || r2;
-      append(pass ? 'RESULT: PASS (GM cross-origin works)' : 'RESULT: FAIL');
-      document.title = pass ? 'PASS CORS TEST' : 'FAIL CORS TEST';
+      testOne('bitget', 'https://api.bitget.com/api/v2/spot/market/tickers')
+        .then(function (r1) {
+          return testOne('gate', 'https://api.gateio.ws/api/v4/spot/tickers').then(function (r2) {
+            return r1 || r2;
+          });
+        })
+        .then(function (pass) {
+          append(pass ? 'RESULT: PASS (GM cross-origin works)' : 'RESULT: FAIL');
+          document.title = pass ? 'PASS CORS TEST' : 'FAIL CORS TEST';
+        });
     });
 
-    const close = document.createElement('button');
+    var close = document.createElement('button');
     close.textContent = 'x';
     close.style.cssText =
       'position:absolute;top:6px;right:8px;border:0;background:transparent;color:#fff;font-size:16px;cursor:pointer;';
-    close.addEventListener('click', () => panel.remove());
+    close.addEventListener('click', function () { panel.remove(); });
     panel.appendChild(close);
 
     document.documentElement.appendChild(panel);
